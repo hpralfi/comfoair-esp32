@@ -16,6 +16,7 @@ It was built to replace a Gira HomeServer + Moxa serial gateway on a Wernig G90-
 - **All values of the unit**: four temperatures, level, fan power and rpm, bypass, filter, frost protection, preheating, operating hours per level
 - **Control**: ventilation level 0–3, comfort temperature, fan level percentages, boost button on the board
 - **Wall panel switch**: keep the CC-Ease / CC-Luxe panel active in parallel, or turn it dark so Home Assistant is the only control (see [RS232 mode](#rs232-mode-and-the-wall-panel))
+- **Web interface** in the browser (with login): all values live, controls, settings, live log, firmware upload — works without Home Assistant too
 - **Over-the-air updates** after the first flash
 - **USB-C** for power and programming (CH340K on board, auto-reset into bootloader)
 - **Second RS232 channel** on a screw terminal, reserved for a future panel proxy mode
@@ -100,6 +101,7 @@ The board uses a fork of [wichers/esphome-comfoair](https://github.com/wichers/e
 2. First flash via USB-C, for example with the ESPHome dashboard or `esphome run comfoair-esp32.yaml`. The board enters the bootloader automatically.
 3. After that, updates go over the air.
 4. Home Assistant discovers the device; enter the API key when asked.
+5. Web interface: `http://<board-ip>/`, log in with `web_username` / `web_password` from `secrets.yaml`. You can also upload new firmware files (`.bin`) there.
 
 ## RS232 mode and the wall panel
 

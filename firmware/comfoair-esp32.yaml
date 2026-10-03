@@ -50,6 +50,8 @@ switch:
   - platform: template
     id: wall_panel
     name: "Wall panel"
+    web_server:
+      sorting_group_id: grp_ventilation
     icon: mdi:remote
     optimistic: true
     # Default off = panel dark, Home Assistant is the only control.
@@ -91,6 +93,35 @@ api:
 ota:
   - platform: esphome
     password: !secret ota_password
+  # Firmware upload through the web interface
+  - platform: web_server
+
+# Web interface at http://<device-ip>/ : live values, controls, settings and
+# log. Authentication is required - without it anyone on the network could
+# switch the unit or upload firmware. local: true embeds the UI, no internet.
+web_server:
+  port: 80
+  version: 3
+  local: true
+  auth:
+    username: !secret web_username
+    password: !secret web_password
+  sorting_groups:
+    - id: grp_ventilation
+      name: "Ventilation"
+      sorting_weight: 10
+    - id: grp_temperatures
+      name: "Temperatures"
+      sorting_weight: 20
+    - id: grp_bypass
+      name: "Bypass and frost protection"
+      sorting_weight: 30
+    - id: grp_maintenance
+      name: "Filter and operating hours"
+      sorting_weight: 40
+    - id: grp_settings
+      name: "Settings"
+      sorting_weight: 50
 
 logger:
   level: INFO
@@ -113,6 +144,8 @@ binary_sensor:
   - platform: gpio
     id: boost_button
     name: "Boost button"
+    web_server:
+      sorting_group_id: grp_ventilation
     pin:
       number: GPIO27
       mode:
@@ -148,6 +181,8 @@ comfoair:
   id: comfoair_climate
   name: "Ventilation"
   uart_id: uart_bus
+  web_server:
+    sorting_group_id: grp_ventilation
 
   # Required with ESPHome 2026.8+, otherwise the config check fails with the
   # misleading "At least one of 'id:' or 'name:' is required".
@@ -157,82 +192,156 @@ comfoair:
 
   outside_air_temperature:
     name: "Outside air"
+    web_server:
+      sorting_group_id: grp_temperatures
   supply_air_temperature:
     name: "Supply air"
+    web_server:
+      sorting_group_id: grp_temperatures
   return_air_temperature:
     name: "Extract air"
+    web_server:
+      sorting_group_id: grp_temperatures
   exhaust_air_temperature:
     name: "Exhaust air"
+    web_server:
+      sorting_group_id: grp_temperatures
 
   ventilation_level:
     name: "Level"
+    web_server:
+      sorting_group_id: grp_ventilation
   intake_fan_speed:
     name: "Supply fan"
+    web_server:
+      sorting_group_id: grp_ventilation
   exhaust_fan_speed:
     name: "Exhaust fan"
+    web_server:
+      sorting_group_id: grp_ventilation
   intake_fan_speed_rpm:
     name: "Supply fan speed"
+    web_server:
+      sorting_group_id: grp_ventilation
   exhaust_fan_speed_rpm:
     name: "Exhaust fan speed"
+    web_server:
+      sorting_group_id: grp_ventilation
   supply_fan_active:
     name: "Supply fan running"
+    web_server:
+      sorting_group_id: grp_ventilation
 
   supply_air_level_absent:
     name: "Supply level 0"
+    web_server:
+      sorting_group_id: grp_settings
   supply_air_level_low:
     name: "Supply level 1"
+    web_server:
+      sorting_group_id: grp_settings
   supply_air_level_medium:
     name: "Supply level 2"
+    web_server:
+      sorting_group_id: grp_settings
   supply_air_level_high:
     name: "Supply level 3"
+    web_server:
+      sorting_group_id: grp_settings
   return_air_level_absent:
     name: "Exhaust level 0"
+    web_server:
+      sorting_group_id: grp_settings
   return_air_level_low:
     name: "Exhaust level 1"
+    web_server:
+      sorting_group_id: grp_settings
   return_air_level_medium:
     name: "Exhaust level 2"
+    web_server:
+      sorting_group_id: grp_settings
   return_air_level_high:
     name: "Exhaust level 3"
+    web_server:
+      sorting_group_id: grp_settings
   sync_fan_levels:
     name: "Write fan levels to unit"
+    web_server:
+      sorting_group_id: grp_settings
 
   bypass_valve:
     name: "Bypass position"
+    web_server:
+      sorting_group_id: grp_bypass
   bypass_valve_open:
     name: "Bypass open"
+    web_server:
+      sorting_group_id: grp_bypass
   summer_mode:
     name: "Summer mode"
+    web_server:
+      sorting_group_id: grp_bypass
 
   filter_status:
     name: "Filter status"
+    web_server:
+      sorting_group_id: grp_maintenance
   filter_status_full:
     name: "Filter dirty"
+    web_server:
+      sorting_group_id: grp_maintenance
   filter_hours:
     name: "Filter hours"
+    web_server:
+      sorting_group_id: grp_maintenance
   filter_warning_weeks:
     name: "Filter warning after weeks"
+    web_server:
+      sorting_group_id: grp_maintenance
 
   frost_protection_active:
     name: "Frost protection active"
+    web_server:
+      sorting_group_id: grp_bypass
   frost_protection_level:
     name: "Frost protection level"
+    web_server:
+      sorting_group_id: grp_bypass
   preheating_active:
     name: "Preheating active"
+    web_server:
+      sorting_group_id: grp_bypass
 
   level0_hours:
     name: "Hours level 0"
+    web_server:
+      sorting_group_id: grp_maintenance
   level1_hours:
     name: "Hours level 1"
+    web_server:
+      sorting_group_id: grp_maintenance
   level2_hours:
     name: "Hours level 2"
+    web_server:
+      sorting_group_id: grp_maintenance
   level3_hours:
     name: "Hours level 3"
+    web_server:
+      sorting_group_id: grp_maintenance
   bypass_open_hours:
     name: "Hours bypass open"
+    web_server:
+      sorting_group_id: grp_maintenance
 
   boost_ventilation_minutes:
     name: "Boost duration"
+    web_server:
+      sorting_group_id: grp_settings
   bathroom_switch_on_delay_minutes:
     name: "Bathroom switch on delay"
+    web_server:
+      sorting_group_id: grp_settings
   bathroom_switch_off_delay_minutes:
     name: "Bathroom switch off delay"
+    web_server:
+      sorting_group_id: grp_settings

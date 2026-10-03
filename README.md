@@ -16,6 +16,7 @@ Entstanden ist sie als Ersatz für einen Gira HomeServer mit Moxa-Seriell-Gatewa
 - **Alle Werte des Geräts**: vier Temperaturen, Stufe, Leistung und Drehzahl der Ventilatoren, Bypass, Filter, Frostschutz, Vorheizung, Betriebsstunden je Stufe
 - **Steuern**: Lüftungsstufe 0–3, Komforttemperatur, Stufenwerte in Prozent, Stoßlüften-Taster auf der Platine
 - **Schalter für das Bedienteil**: CC-Ease / CC-Luxe parallel weiter nutzen oder dunkel schalten, sodass nur Home Assistant bedient (siehe [RS232-Modus](#rs232-modus-und-das-bedienteil))
+- **Webinterface** im Browser (mit Anmeldung): alle Werte live, bedienen, Einstellungen, Live-Log, Firmware-Update per Datei — auch ohne Home Assistant
 - **Updates über WLAN** nach dem ersten Flashen
 - **USB-C** für Versorgung und Programmierung (CH340K an Bord, automatischer Wechsel in den Bootloader)
 - **Zweiter RS232-Kanal** an einer Schraubklemme, vorgesehen für einen späteren Proxy-Betrieb des Bedienteils
@@ -100,6 +101,7 @@ Die Platine nutzt einen Fork von [wichers/esphome-comfoair](https://github.com/w
 2. Erstes Flashen über USB-C, z. B. mit dem ESPHome-Dashboard oder `esphome run comfoair-esp32.yaml`. Die Platine wechselt selbst in den Bootloader.
 3. Danach laufen Updates über WLAN.
 4. Home Assistant findet das Gerät; den API-Schlüssel eingeben, wenn danach gefragt wird.
+5. Webinterface: `http://<adresse-der-platine>/`, Anmeldung mit `web_username` / `web_password` aus `secrets.yaml`. Dort lassen sich auch neue Firmware-Dateien (`.bin`) hochladen.
 
 ## RS232-Modus und das Bedienteil
 
