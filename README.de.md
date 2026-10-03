@@ -21,6 +21,12 @@ Entstanden ist sie als Ersatz für einen Gira HomeServer mit Moxa-Seriell-Gatewa
 - **Zweiter RS232-Kanal** an einer Schraubklemme, vorgesehen für einen späteren Proxy-Betrieb des Bedienteils
 - Status-LED (WS2812B) und ein frei belegbarer Taster
 
+## In Home Assistant
+
+![Home-Assistant-Dashboard](docs/images/home-assistant.png)
+
+Beispiel-Dashboard: Stufenknöpfe, Schalter für das Bedienteil, Ventilatoren, Bypass, Filter, Betriebsstunden und Temperaturverlauf über 24 Stunden.
+
 ## Hardware
 
 | | |

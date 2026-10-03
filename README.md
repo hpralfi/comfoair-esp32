@@ -21,6 +21,12 @@ It was built to replace a Gira HomeServer + Moxa serial gateway on a Wernig G90-
 - **Second RS232 channel** on a screw terminal, reserved for a future panel proxy mode
 - Status LED (WS2812B) and a user button
 
+## In Home Assistant
+
+![Home Assistant dashboard](docs/images/home-assistant.png)
+
+Example dashboard: level buttons, wall panel switch, fans, bypass, filter, operating hours and a 24-hour temperature history.
+
 ## Hardware
 
 | | |
