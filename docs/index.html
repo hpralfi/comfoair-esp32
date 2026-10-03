@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>comfoair-esp32 – ComfoAir in Home Assistant</title>
+<meta name="description" content="ESP32-Platine für Zehnder ComfoAir, StorkAir WHR und Wernig G90: Lüftungsgerät lokal in Home Assistant einbinden, ohne Cloud und ohne MQTT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f2; --surface: #ffffff; --text: #1c1b1a; --muted: #6b6762;
+    --line: #e4e0da; --accent: #d7262b; --accent-soft: #fbe9e9;
+    --ok: #1f7a3f; --maybe: #9a6b00; --no: #a1261f; --unknown: #5b6470;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141312; --surface: #1d1c1a; --text: #f1eee9; --muted: #a39e97;
+      --line: #2f2d2a; --accent: #ff5a5f; --accent-soft: #3a1c1d;
+      --ok: #5cc884; --maybe: #e2b04a; --no: #ff7a70; --unknown: #9aa4b2;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.6 Inter, system-ui, sans-serif; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  header.top { display: flex; justify-content: space-between; align-items: center;
+               padding: 18px 0; }
+  .logo { font: 500 15px "JetBrains Mono", monospace; letter-spacing: .02em; }
+  .logo b { color: var(--accent); }
+  .lang button { border: 1px solid var(--line); background: var(--surface); color: var(--text);
+                 padding: 4px 10px; font: inherit; font-size: 14px; cursor: pointer; }
+  .lang button:first-child { border-radius: 6px 0 0 6px; }
+  .lang button:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
+  .lang button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center;
+          padding: 32px 0 56px; }
+  .hero > *, .specs > *, .buy > *, .features > * { min-width: 0; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.05; margin: 0 0 16px;
+             font-weight: 800; letter-spacing: -.02em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 18px; margin: 0 0 24px; }
+  .hero img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 14px; display: block; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600;
+         text-decoration: none; }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.ghost { border: 1px solid var(--line); color: var(--text); background: var(--surface); }
+  section { padding: 48px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -.01em; }
+  .lead { color: var(--muted); margin: 0 0 28px; max-width: 680px; }
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 17px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .specs { display: block; max-width: 720px; }
+  .specs img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+  .table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+         white-space: nowrap; border: 1px solid currentColor; }
+  .ok { color: var(--ok); } .maybe { color: var(--maybe); } .no { color: var(--no); } .unk { color: var(--unknown); }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line);
+              border-radius: 12px; padding: 16px 16px 16px 56px; position: relative; }
+  .steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 26px; height: 26px;
+                      border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+                      display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+  .buy { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .buy .card.highlight { border-color: var(--accent); }
+  .note { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; font-size: 15px; margin: 14px 0; }
+  code { font-family: "JetBrains Mono", monospace; font-size: .9em; }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+  [data-lang="en"] .de, [data-lang="de"] .en { display: none; }
+  @media (max-width: 800px) {
+    .hero, .specs, .buy { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+    .hero { padding-top: 8px; }
+  }
+</style>
+</head>
+<body data-lang="de">
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><b>●</b> comfoair-esp32</div>
+    <div class="lang" role="group" aria-label="Sprache / Language">
+      <button type="button" data-set="de" aria-pressed="true">DE</button>
+      <button type="button" data-set="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1 class="de">Deine Lüftung in <em>Home&nbsp;Assistant</em>.</h1>
+      <h1 class="en">Your ventilation in <em>Home&nbsp;Assistant</em>.</h1>
+      <p class="de">Eine kleine ESP32-Platine für die RS232-Schnittstelle von Zehnder ComfoAir, StorkAir WHR und Wernig G90. Lokal, ohne Cloud, ohne MQTT — mit ESPHome.</p>
+      <p class="en">A small ESP32 board for the RS232 port of Zehnder ComfoAir, StorkAir WHR and Wernig G90 units. Local, no cloud, no MQTT — powered by ESPHome.</p>
+      <div class="btns">
+        <a class="btn primary" href="#buy"><span class="de">Platine bekommen</span><span class="en">Get a board</span></a>
+        <a class="btn ghost" href="#compat"><span class="de">Passt mein Gerät?</span><span class="en">Does my unit fit?</span></a>
+        <a class="btn ghost" href="https://github.com/hpralfi/comfoair-esp32">GitHub</a>
+      </div>
+    </div>
+    <img src="images/board.jpg" alt="comfoair-esp32 board with DB9 connector" width="1150" height="1150">
+  </div>
+
+  <section>
+    <h2 class="de">Was sie kann</h2><h2 class="en">What it does</h2>
+    <p class="lead de">Alles, was das Gerät über die Schnittstelle preisgibt, landet als Entität in Home Assistant — über 40 Stück.</p>
+    <p class="lead en">Everything the unit exposes over the serial port becomes an entity in Home Assistant — over 40 of them.</p>
+    <div class="features">
+      <div class="card"><h3 class="de">Native Anbindung</h3><h3 class="en">Native integration</h3>
+        <p class="de">ESPHome-API mit Verschlüsselung. Home Assistant findet die Platine selbst.</p>
+        <p class="en">Encrypted ESPHome API. Home Assistant discovers the board automatically.</p></div>
+      <div class="card"><h3 class="de">Alle Messwerte</h3><h3 class="en">All readings</h3>
+        <p class="de">Vier Temperaturen, Stufe, Leistung und Drehzahl, Bypass, Filter, Frostschutz, Betriebsstunden.</p>
+        <p class="en">Four temperatures, level, fan power and rpm, bypass, filter, frost protection, operating hours.</p></div>
+      <div class="card"><h3 class="de">Steuern</h3><h3 class="en">Control</h3>
+        <p class="de">Stufe 0–3, Komforttemperatur, Stufenwerte. Zeitpläne und Automationen in Home Assistant.</p>
+        <p class="en">Level 0–3, comfort temperature, fan percentages. Schedules and automations in Home Assistant.</p></div>
+      <div class="card"><h3 class="de">Bedienteil wählbar</h3><h3 class="en">Wall panel your way</h3>
+        <p class="de">CC-Ease parallel weiter nutzen oder dunkel schalten — ein Schalter in Home Assistant.</p>
+        <p class="en">Keep the CC-Ease in parallel or switch it dark — one switch in Home Assistant.</p></div>
+      <div class="card"><h3 class="de">Updates über WLAN</h3><h3 class="en">Over-the-air updates</h3>
+        <p class="de">Einmal per USB-C flashen, danach nie wieder ein Kabel.</p>
+        <p class="en">Flash once via USB-C, then never touch a cable again.</p></div>
+      <div class="card"><h3 class="de">Offen</h3><h3 class="en">Open</h3>
+        <p class="de">Schaltplan, KiCad-Projekt und Fertigungsdaten frei unter CERN-OHL-S.</p>
+        <p class="en">Schematic, KiCad project and production files under CERN-OHL-S.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Hardware</h2>
+    <div class="specs">
+      <div class="table-scroll"><table>
+        <tr><td class="de">Größe</td><td class="en">Size</td><td>70 × 55 mm</td></tr>
+        <tr><td class="de">Prozessor</td><td class="en">MCU</td><td>ESP32-WROOM-32E</td></tr>
+        <tr><td class="de">Pegelwandler</td><td class="en">Level shifter</td><td>MAX3232, 2 <span class="de">Kanäle</span><span class="en">channels</span></td></tr>
+        <tr><td class="de">Versorgung</td><td class="en">Power</td><td>5 V USB-C, &lt; 1 W</td></tr>
+        <tr><td class="de">Anschluss Gerät</td><td class="en">Unit port</td><td><span class="de">DB9-Stecker, DTE (Pin 2 RX, 3 TX, 5 GND)</span><span class="en">DB9 male, DTE (pin 2 RX, 3 TX, 5 GND)</span></td></tr>
+        <tr><td class="de">Zweiter Kanal</td><td class="en">Second channel</td><td><span class="de">Schraubklemme, 3-polig</span><span class="en">3-pin screw terminal</span></td></tr>
+        <tr><td>USB</td><td>CH340K, <span class="de">Auto-Reset</span><span class="en">auto reset</span>, USBLC6</td></tr>
+        <tr><td class="de">Extras</td><td class="en">Extras</td><td><span class="de">Status-LED, Taster, RX/TX-Lötbrücken</span><span class="en">status LED, button, RX/TX solder jumpers</span></td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="compat">
+    <h2 class="de">Kompatible Geräte</h2><h2 class="en">Compatible units</h2>
+    <p class="lead de">Die meisten Angaben im Netz sind voneinander abgeschrieben. Hier steht ehrlich, was nachgewiesen ist und was nur gelistet.</p>
+    <p class="lead en">Most claims online are copied from each other. This list is honest about what is verified and what is only listed.</p>
+    <div class="table-scroll"><table>
+      <tr><th class="de">Gerät</th><th class="en">Unit</th><th class="de">Marke</th><th class="en">Brand</th><th>Status</th></tr>
+      <tr><td>G90-380 (CS / Luxe)</td><td>Wernig</td><td><span class="tag ok"><span class="de">mit dieser Platine nachgewiesen</span><span class="en">verified with this board</span></span></td></tr>
+      <tr><td>G90-160</td><td>Wernig</td><td><span class="tag ok"><span class="de">nachgewiesen</span><span class="en">verified</span></span></td></tr>
+      <tr><td>ComfoAir 350</td><td>Zehnder</td><td><span class="tag ok"><span class="de">nachgewiesen</span><span class="en">verified</span></span></td></tr>
+      <tr><td>ComfoAir 160</td><td>Zehnder</td><td><span class="tag ok"><span class="de">nachgewiesen</span><span class="en">verified</span></span></td></tr>
+      <tr><td>ComfoD 450</td><td>Zehnder</td><td><span class="tag ok"><span class="de">nachgewiesen</span><span class="en">verified</span></span></td></tr>
+      <tr><td>G90-200 CS</td><td>Wernig</td><td><span class="tag maybe"><span class="de">wahrscheinlich</span><span class="en">likely</span></span></td></tr>
+      <tr><td>ComfoAir 200 / 500 / 550</td><td>Zehnder</td><td><span class="tag maybe"><span class="de">wahrscheinlich</span><span class="en">likely</span></span></td></tr>
+      <tr><td>ComfoD 300 / 350 / 550</td><td>Zehnder</td><td><span class="tag maybe"><span class="de">wahrscheinlich</span><span class="en">likely</span></span></td></tr>
+      <tr><td>WHR 920 / 930 / 950 / 960</td><td>J.E. StorkAir</td><td><span class="tag maybe"><span class="de">wahrscheinlich</span><span class="en">likely</span></span></td></tr>
+      <tr><td>Santos 370 DC</td><td>Paul</td><td><span class="tag maybe"><span class="de">wahrscheinlich</span><span class="en">likely</span></span></td></tr>
+      <tr><td>G90-300</td><td>Wernig</td><td><span class="tag unk"><span class="de">ungeprüft</span><span class="en">unknown</span></span></td></tr>
+      <tr><td>ComfoAir Q350 / Q450 / Q600, Q350 / Q600</td><td>Zehnder / Wernig</td><td><span class="tag no"><span class="de">nicht kompatibel (CAN)</span><span class="en">not compatible (CAN)</span></span></td></tr>
+      <tr><td>ComfoAir E300 / E350 / E400</td><td>Zehnder</td><td><span class="tag no"><span class="de">nicht kompatibel (Modbus)</span><span class="en">not compatible (Modbus)</span></span></td></tr>
+      <tr><td>Novus 300</td><td>Paul</td><td><span class="tag no"><span class="de">nicht kompatibel (RS485)</span><span class="en">not compatible (RS485)</span></span></td></tr>
+      <tr><td>Vitovent 300-W</td><td>Viessmann</td><td><span class="tag no"><span class="de">nicht kompatibel</span><span class="en">not compatible</span></span></td></tr>
+    </table></div>
+
+    <h3 class="de" style="margin-top:32px">So prüfst du dein Gerät</h3>
+    <h3 class="en" style="margin-top:32px">How to check your unit</h3>
+    <ol class="steps de">
+      <li><b>Typenschild:</b> eines der Modelle oben. „Q“ oder „E“ im Namen heißt: passt nicht.</li>
+      <li><b>Bedienteil:</b> CC-Ease, CC-Luxe oder alte ComfoSense sind gute Zeichen. ComfoConnect oder Touch-Display deuten auf die Q-Plattform.</li>
+      <li><b>Steuerplatine:</b> CA350 / CA550 mit Anschluss „RS232“ oder „RS232 PC“. Manchmal RJ45 oder Klemmen statt DB9 — dann braucht es ein Adapterkabel.</li>
+      <li><b>Nicht verwechseln:</b> Die RS485-Klemmen („Entalpy“, „Hybalans“) auf der Wernig-Konnektorplatine sind für Zubehör, nicht der PC-Anschluss.</li>
+    </ol>
+    <ol class="steps en">
+      <li><b>Type plate:</b> one of the models above. A "Q" or "E" in the name means it will not fit.</li>
+      <li><b>Wall panel:</b> CC-Ease, CC-Luxe or the old ComfoSense are good signs. ComfoConnect or a touch display point to the Q platform.</li>
+      <li><b>Control board:</b> CA350 / CA550 with a port labelled "RS232" or "RS232 PC". Sometimes RJ45 or terminals instead of DB9 — then you need an adapter cable.</li>
+      <li><b>Don't confuse:</b> the RS485 terminals ("Entalpy", "Hybalans") on the Wernig connector board are for accessories, not the PC port.</li>
+    </ol>
+    <p class="note de">Ein „wahrscheinlich“-Gerät getestet? Bitte ein <a href="https://github.com/hpralfi/comfoair-esp32/issues">Issue anlegen</a> — es wandert dann zu „nachgewiesen“.</p>
+    <p class="note en">Tested a "likely" unit? Please <a href="https://github.com/hpralfi/comfoair-esp32/issues">open an issue</a> — it will move to "verified".</p>
+  </section>
+
+  <section id="buy">
+    <h2 class="de">Platine bekommen</h2><h2 class="en">Get a board</h2>
+    <div class="buy">
+      <div class="card highlight">
+        <h3 class="de">Fertig bestückt und geprüft</h3><h3 class="en">Assembled and tested</h3>
+        <p class="de">DB9 und Schraubklemme gelötet, Lötbrücken gesetzt, Firmware aufgespielt — anstecken, ins WLAN, fertig.</p>
+        <p class="en">DB9 and screw terminal soldered, jumpers set, firmware flashed — plug in, join WiFi, done.</p>
+        <p class="note de"><b>Der Verkauf startet, sobald die CE-Konformitätsbewertung abgeschlossen ist.</b> Bis dahin unverbindlich Interesse anmelden — mit Gerätemodell und Land.</p>
+        <p class="note en"><b>Sales start once the CE conformity assessment is completed.</b> Until then, register your interest — no obligation — with your unit model and country.</p>
+        <a class="btn primary de" href="mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20Interesse">Interesse anmelden</a>
+        <a class="btn primary en" href="mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20interest">Register interest</a>
+      </div>
+      <div class="card">
+        <h3 class="de">Selbst bauen</h3><h3 class="en">Build it yourself</h3>
+        <p class="de">Gerber-, Stücklisten- und Bestückungsdaten für JLCPCB liegen im Repository, Dreh- und Lagekorrekturen schon eingetragen. Selbst zu löten sind nur DB9 und Schraubklemme — und die Lötbrücken JP1/JP2 auf Pad 1–2 schließen.</p>
+        <p class="en">Gerber, BOM and placement files for JLCPCB are in the repository, with rotation and offset corrections applied. You only solder the DB9 and screw terminal — and close jumpers JP1/JP2 on pads 1–2.</p>
+        <a class="btn ghost" href="https://github.com/hpralfi/comfoair-esp32#build-it-yourself"><span class="de">Anleitung</span><span class="en">Guide</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="de">Das Bedienteil</h2><h2 class="en">The wall panel</h2>
+    <p class="lead de">Gemessen an einer CA350 mit Firmware 3.20: Der oft genannte Modus 1 „nur PC“ wird ignoriert. Modus 3 „PC Master“ schaltet das CC-Ease dunkel; zurück auf Modus 2 ist es wieder aktiv, und Home Assistant kann trotzdem schalten. Ein Schalter in Home Assistant wählt zwischen beidem und stellt die Wahl nach einem Stromausfall selbst wieder her.</p>
+    <p class="lead en">Measured on a CA350 with firmware 3.20: the often quoted mode 1 "PC only" is ignored. Mode 3 "PC master" turns the CC-Ease dark; back in mode 2 it is active again and Home Assistant can still switch levels. A switch in Home Assistant picks either and restores the choice after a power cut.</p>
+  </section>
+
+  <footer>
+    <p class="de">Unabhängiges Hobbyprojekt ohne Verbindung zu Zehnder, StorkAir, Wernig oder Paul; Markennamen nur zur Angabe der Kompatibilität. Hardware unter CERN-OHL-S-2.0, Firmware unter GPL-3.0. Basiert auf <a href="https://github.com/wichers/esphome-comfoair">wichers/esphome-comfoair</a>.</p>
+    <p class="en">Independent hobby project, not affiliated with Zehnder, StorkAir, Wernig or Paul; brand names only describe compatibility. Hardware under CERN-OHL-S-2.0, firmware under GPL-3.0. Built on <a href="https://github.com/wichers/esphome-comfoair">wichers/esphome-comfoair</a>.</p>
+    <p>Kontakt / Contact: <a href="mailto:office@gfrerrer.at">office@gfrerrer.at</a></p>
+  </footer>
+</div>
+<script>
+  // Sprache wählen: gespeicherte Wahl, sonst Browsersprache
+  (function () {
+    var body = document.body, buttons = document.querySelectorAll('.lang button');
+    function setLang(lang) {
+      body.setAttribute('data-lang', lang);
+      document.documentElement.lang = lang;
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === lang)); });
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+    }
+    var saved = null;
+    try { saved = localStorage.getItem('lang'); } catch (e) {}
+    setLang(saved || ((navigator.language || 'de').toLowerCase().indexOf('de') === 0 ? 'de' : 'en'));
+    buttons.forEach(function (b) { b.addEventListener('click', function () { setLang(b.dataset.set); }); });
+  })();
+</script>
+</body>
+</html>
