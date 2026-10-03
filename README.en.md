@@ -79,11 +79,11 @@ The ComfoAir serial protocol is shared by many units and their OEM variants. Mos
 
 ### Ready-made board
 
-Assembled and tested boards (DB9 and screw terminal soldered, solder jumpers set, firmware flashed) are planned.
+Assembled and tested boards: DB9 and screw terminal soldered, solder jumpers set, firmware flashed.
 
-**Sales start once the CE conformity assessment is completed.** Until then you can register your interest — no obligation:
+**Ready-made boards are in preparation.** Get in touch — no obligation — with your unit model and country, and I will let you know when they are available:
 
-📧 **[office@gfrerrer.at](mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20interest)** — please mention your unit model and country.
+📧 **[office@gfrerrer.at](mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20interest)**
 
 ### Build it yourself
 

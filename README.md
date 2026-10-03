@@ -79,11 +79,11 @@ Das ComfoAir-Seriellprotokoll sprechen viele Geräte und ihre Handelsmarken-Vari
 
 ### Fertige Platine
 
-Bestückte und geprüfte Platinen (DB9 und Schraubklemme gelötet, Lötbrücken gesetzt, Firmware aufgespielt) sind geplant.
+Bestückte und geprüfte Platinen: DB9 und Schraubklemme gelötet, Lötbrücken gesetzt, Firmware aufgespielt.
 
-**Der Verkauf startet, sobald die CE-Konformitätsbewertung abgeschlossen ist.** Bis dahin kannst du unverbindlich Interesse anmelden:
+**Fertige Platinen sind in Vorbereitung.** Melde dich unverbindlich — mit Gerätemodell und Land, dann sage ich Bescheid, sobald es losgeht:
 
-📧 **[office@gfrerrer.at](mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20Interesse)** — bitte Gerätemodell und Land angeben.
+📧 **[office@gfrerrer.at](mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20Interesse)**
 
 ### Selbst bauen
 
