@@ -1,135 +1,135 @@
 # comfoair-esp32
 
-**Connect your Zehnder ComfoAir, StorkAir WHR or Wernig G90 ventilation unit to Home Assistant — locally, without cloud and without MQTT.**
+**Zehnder ComfoAir, StorkAir WHR oder Wernig G90 in Home Assistant einbinden — lokal, ohne Cloud und ohne MQTT.**
 
-[Deutsch](README.de.md) · [Project page](https://hpralfi.github.io/comfoair-esp32/)
+[English](README.en.md) · [Projektseite](https://hpralfi.github.io/comfoair-esp32/)
 
-![comfoair-esp32 board](docs/images/board.jpg)
+![comfoair-esp32 Platine](docs/images/board.jpg)
 
-A small ESP32 board that plugs into the **"RS232 PC"** port of ventilation units built on the Zehnder CA350 control board. It runs [ESPHome](https://esphome.io) and shows up in Home Assistant with over 40 entities: temperatures, fan levels and speeds, bypass, filter status, frost protection, operating hours.
+Eine kleine ESP32-Platine für die Buchse **„RS232 PC“** von Lüftungsgeräten mit der Zehnder-Steuerplatine CA350. Sie läuft mit [ESPHome](https://esphome.io) und erscheint in Home Assistant mit über 40 Entitäten: Temperaturen, Lüftungsstufe, Ventilatorleistung und Drehzahl, Bypass, Filterzustand, Frostschutz, Betriebsstunden.
 
-It was built to replace a Gira HomeServer + Moxa serial gateway on a Wernig G90-380 and has been running on that unit since October 2026.
+Entstanden ist sie als Ersatz für einen Gira HomeServer mit Moxa-Seriell-Gateway an einer Wernig G90-380. Dort läuft sie seit Oktober 2026.
 
-## Features
+## Funktionen
 
-- **Native Home Assistant integration** via the ESPHome API — no MQTT broker, no cloud
-- **All values of the unit**: four temperatures, level, fan power and rpm, bypass, filter, frost protection, preheating, operating hours per level
-- **Control**: ventilation level 0–3, comfort temperature, fan level percentages, boost button on the board
-- **Wall panel switch**: keep the CC-Ease / CC-Luxe panel active in parallel, or turn it dark so Home Assistant is the only control (see [RS232 mode](#rs232-mode-and-the-wall-panel))
-- **Over-the-air updates** after the first flash
-- **USB-C** for power and programming (CH340K on board, auto-reset into bootloader)
-- **Second RS232 channel** on a screw terminal, reserved for a future panel proxy mode
-- Status LED (WS2812B) and a user button
+- **Native Home-Assistant-Anbindung** über die ESPHome-API — kein MQTT-Broker, keine Cloud
+- **Alle Werte des Geräts**: vier Temperaturen, Stufe, Leistung und Drehzahl der Ventilatoren, Bypass, Filter, Frostschutz, Vorheizung, Betriebsstunden je Stufe
+- **Steuern**: Lüftungsstufe 0–3, Komforttemperatur, Stufenwerte in Prozent, Stoßlüften-Taster auf der Platine
+- **Schalter für das Bedienteil**: CC-Ease / CC-Luxe parallel weiter nutzen oder dunkel schalten, sodass nur Home Assistant bedient (siehe [RS232-Modus](#rs232-modus-und-das-bedienteil))
+- **Updates über WLAN** nach dem ersten Flashen
+- **USB-C** für Versorgung und Programmierung (CH340K an Bord, automatischer Wechsel in den Bootloader)
+- **Zweiter RS232-Kanal** an einer Schraubklemme, vorgesehen für einen späteren Proxy-Betrieb des Bedienteils
+- Status-LED (WS2812B) und ein frei belegbarer Taster
 
 ## In Home Assistant
 
-![Home Assistant dashboard](docs/images/home-assistant.png)
+![Home-Assistant-Dashboard](docs/images/home-assistant.png)
 
-Example dashboard: level buttons, wall panel switch, fans, bypass, filter, operating hours and a 24-hour temperature history.
+Beispiel-Dashboard: Stufenknöpfe, Schalter für das Bedienteil, Ventilatoren, Bypass, Filter, Betriebsstunden und Temperaturverlauf über 24 Stunden.
 
 ## Hardware
 
 | | |
 |---|---|
-| Size | 70 × 55 mm, 2 layers, 1.6 mm |
-| MCU | ESP32-WROOM-32E (WiFi, PCB antenna) |
-| Level shifter | MAX3232 (2 channels) |
-| USB | USB-C, CH340K, ESD protection USBLC6 |
-| Power | 5 V via USB-C, AP2112K 3.3 V regulator, below 1 W |
-| Unit port | **DB9 male**, DTE pinout: pin 2 RX, pin 3 TX, pin 5 GND |
-| Second port | 3-pin screw terminal (RS232 channel 2) |
-| Solder jumpers | JP1/JP2 cross RX/TX on the DB9 if needed |
+| Größe | 70 × 55 mm, 2 Lagen, 1,6 mm |
+| Prozessor | ESP32-WROOM-32E (WLAN, Leiterplattenantenne) |
+| Pegelwandler | MAX3232 (2 Kanäle) |
+| USB | USB-C, CH340K, ESD-Schutz USBLC6 |
+| Versorgung | 5 V über USB-C, Regler AP2112K 3,3 V, unter 1 W |
+| Anschluss Gerät | **DB9-Stecker**, DTE-Belegung: Pin 2 RX, Pin 3 TX, Pin 5 GND |
+| Zweiter Anschluss | 3-polige Schraubklemme (RS232-Kanal 2) |
+| Lötbrücken | JP1/JP2 kreuzen RX/TX am DB9 bei Bedarf |
 
-The DB9 follows the pinout of a Moxa NPort 5110: if a serial gateway or PC cable is already connected to the unit, unplug it and plug in the board with the same cable. No crossing needed on the Wernig G90-380.
+Der DB9 ist belegt wie bei einer Moxa NPort 5110: Hängt am Gerät schon ein Seriell-Gateway oder PC-Kabel, dieses abstecken und die Platine mit demselben Kabel anschließen. An der Wernig G90-380 war kein Kreuzen nötig.
 
-Schematic: [`hardware/schematic.pdf`](hardware/schematic.pdf) · KiCad project: [`hardware/kicad/`](hardware/kicad/) · Production files: [`hardware/production/`](hardware/production/)
+Schaltplan: [`hardware/schematic.pdf`](hardware/schematic.pdf) · KiCad-Projekt: [`hardware/kicad/`](hardware/kicad/) · Fertigungsdaten: [`hardware/production/`](hardware/production/)
 
-## Compatible units
+## Kompatible Geräte
 
-The ComfoAir serial protocol is shared by many units and their OEM variants. Most compatibility claims on the internet are copied from the same protocol description, so this list separates **verified** units from **listed** ones.
+Das ComfoAir-Seriellprotokoll sprechen viele Geräte und ihre Handelsmarken-Varianten. Die meisten Kompatibilitätsangaben im Netz sind aus derselben Protokollbeschreibung abgeschrieben — deshalb trennt diese Liste **nachgewiesene** von nur **gelisteten** Geräten.
 
-| Unit | Brand | Status | Note |
+| Gerät | Marke | Status | Hinweis |
 |---|---|---|---|
-| G90-380 (CS / Luxe) | Wernig | ✅ **verified with this board** | reports "CA350 luxe", firmware 3.20 |
-| G90-160 | Wernig | ✅ verified (other projects) | openHAB binding |
-| ComfoAir 350 | Zehnder | ✅ verified (other projects) | reference unit of the protocol |
-| ComfoAir 160 | Zehnder | ✅ verified (other projects) | esphome-comfoair |
-| ComfoD 450 | Zehnder | ✅ verified (other projects) | |
-| G90-200 CS | Wernig | 🟡 likely | "RS232 PC" in the wiring diagram |
-| ComfoAir 200 / 500 / 550 | Zehnder | 🟡 likely | listed, no test report found |
-| ComfoD 300 / 350 / 550 | Zehnder | 🟡 likely | listed |
-| WHR 920 / 930 / 950 / 960 | J.E. StorkAir | 🟡 likely | listed |
-| Santos 370 DC | Paul | 🟡 likely | listed |
-| G90-300 | Wernig | ❔ unknown | interface not confirmed |
-| ComfoAir Q350 / Q450 / Q600, Wernig Q350 / Q600 | Zehnder / Wernig | ❌ not compatible | CAN / ComfoNet |
-| ComfoAir E300 / E350 / E400 | Zehnder | ❌ not compatible | Modbus RTU (RS485) |
-| Novus 300 | Paul | ❌ not compatible | RS485 |
-| Vitovent 300-W | Viessmann | ❌ not compatible | OpenTherm / Modbus |
+| G90-380 (CS / Luxe) | Wernig | ✅ **mit dieser Platine nachgewiesen** | meldet „CA350 luxe“, Firmware 3.20 |
+| G90-160 | Wernig | ✅ nachgewiesen (andere Projekte) | openHAB-Binding |
+| ComfoAir 350 | Zehnder | ✅ nachgewiesen (andere Projekte) | Referenzgerät des Protokolls |
+| ComfoAir 160 | Zehnder | ✅ nachgewiesen (andere Projekte) | esphome-comfoair |
+| ComfoD 450 | Zehnder | ✅ nachgewiesen (andere Projekte) | |
+| G90-200 CS | Wernig | 🟡 wahrscheinlich | „RS232 PC“ im Schaltplan |
+| ComfoAir 200 / 500 / 550 | Zehnder | 🟡 wahrscheinlich | gelistet, kein Testbericht |
+| ComfoD 300 / 350 / 550 | Zehnder | 🟡 wahrscheinlich | gelistet |
+| WHR 920 / 930 / 950 / 960 | J.E. StorkAir | 🟡 wahrscheinlich | gelistet |
+| Santos 370 DC | Paul | 🟡 wahrscheinlich | gelistet |
+| G90-300 | Wernig | ❔ ungeprüft | Schnittstelle nicht bestätigt |
+| ComfoAir Q350 / Q450 / Q600, Wernig Q350 / Q600 | Zehnder / Wernig | ❌ nicht kompatibel | CAN / ComfoNet |
+| ComfoAir E300 / E350 / E400 | Zehnder | ❌ nicht kompatibel | Modbus RTU (RS485) |
+| Novus 300 | Paul | ❌ nicht kompatibel | RS485 |
+| Vitovent 300-W | Viessmann | ❌ nicht kompatibel | OpenTherm / Modbus |
 
-**Have a 🟡 unit and tested it?** Please open an issue — it will be moved to ✅.
+**Ein 🟡-Gerät getestet?** Bitte ein Issue anlegen — es wandert dann zu ✅.
 
-### How to check your unit
+### So prüfst du dein Gerät
 
-1. **Type plate**: one of the models above. A "Q" or "E" in the model name means it will not work.
-2. **Wall panel**: CC-Ease (rotary knob with display), CC-Luxe or the old ComfoSense are good signs. ComfoConnect, ComfoSense C or a touch display point to the Q platform.
-3. **Control board**: a CA350 / CA550 board with a port labelled **"RS232"** or **"RS232 PC"**. On some units this is not a DB9 socket but RJ45 or screw terminals (RX/TX/GND) — you then need an adapter cable.
-4. On Wernig G90-380 CS connector boards there are also **RS485** terminals ("Entalpy", "Hybalans"). Those are for accessories, **not** the PC port.
+1. **Typenschild**: eines der Modelle oben. Ein „Q“ oder „E“ im Modellnamen heißt: passt nicht.
+2. **Bedienteil**: CC-Ease (Drehrad mit Display), CC-Luxe oder die alte ComfoSense sind gute Zeichen. ComfoConnect, ComfoSense C oder ein Touch-Display deuten auf die Q-Plattform.
+3. **Steuerplatine**: CA350 / CA550 mit einem Anschluss **„RS232“** oder **„RS232 PC“**. Bei manchen Geräten ist das keine DB9-Buchse, sondern RJ45 oder Schraubklemmen (RX/TX/GND) — dann braucht es ein Adapterkabel.
+4. Auf der Konnektorplatine der Wernig G90-380 CS gibt es zusätzlich **RS485**-Klemmen („Entalpy“, „Hybalans“). Die sind für Zubehör, **nicht** der PC-Anschluss.
 
-## Get a board
+## Platine bekommen
 
-### Ready-made board
+### Fertige Platine
 
-Assembled and tested boards (DB9 and screw terminal soldered, solder jumpers set, firmware flashed) are planned.
+Bestückte und geprüfte Platinen (DB9 und Schraubklemme gelötet, Lötbrücken gesetzt, Firmware aufgespielt) sind geplant.
 
-**Sales start once the CE conformity assessment is completed.** Until then you can register your interest — no obligation:
+**Der Verkauf startet, sobald die CE-Konformitätsbewertung abgeschlossen ist.** Bis dahin kannst du unverbindlich Interesse anmelden:
 
-📧 **[office@gfrerrer.at](mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20interest)** — please mention your unit model and country.
+📧 **[office@gfrerrer.at](mailto:office@gfrerrer.at?subject=comfoair-esp32%20-%20Interesse)** — bitte Gerätemodell und Land angeben.
 
-### Build it yourself
+### Selbst bauen
 
-1. Order at [JLCPCB](https://jlcpcb.com) with assembly (PCBA): upload [`gerber.zip`](hardware/production/gerber.zip), [`jlcpcb-bom.csv`](hardware/production/jlcpcb-bom.csv) and [`jlcpcb-cpl.csv`](hardware/production/jlcpcb-cpl.csv). The placement file already contains the rotation and offset corrections JLCPCB needs. Check the LCSC part numbers for stock when ordering.
-2. Solder by hand: **J2** (DB9 male, right-angle, with mounting holes) and **J3** (3-pin screw terminal, 5.08 mm). Solder the two DB9 mounting tabs as well — they carry the plug force. They sit on the ground plane: use a wide chisel tip and ~380 °C.
-3. **Close solder jumpers JP1 and JP2 on pads 1–2.** They are open from the factory — without them the DB9 is not connected to the MAX3232 and the unit stays silent. (Pads 2–3 cross RX/TX if your cable needs it.)
-4. Flash the firmware (below).
+1. Bei [JLCPCB](https://jlcpcb.com) mit Bestückung (PCBA) bestellen: [`gerber.zip`](hardware/production/gerber.zip), [`jlcpcb-bom.csv`](hardware/production/jlcpcb-bom.csv) und [`jlcpcb-cpl.csv`](hardware/production/jlcpcb-cpl.csv) hochladen. Die Bestückungsdatei enthält bereits die Dreh- und Lagekorrekturen, die JLCPCB braucht. Die LCSC-Nummern beim Bestellen auf Lagerbestand prüfen.
+2. Von Hand löten: **J2** (DB9-Stecker, gewinkelt, mit Befestigungsbohrungen) und **J3** (3-polige Schraubklemme, 5,08 mm). Auch die beiden Befestigungslaschen des DB9 verlöten — sie tragen die Steckkraft. Sie hängen an der Massefläche: breite Meißelspitze, etwa 380 °C.
+3. **Lötbrücken JP1 und JP2 auf Pad 1–2 schließen.** Sie sind ab Werk offen — ohne sie ist der DB9 nicht mit dem MAX3232 verbunden und das Gerät bleibt stumm. (Pad 2–3 kreuzt RX/TX, falls das Kabel es braucht.)
+4. Firmware aufspielen (unten).
 
 ## Firmware
 
-The board uses a fork of [wichers/esphome-comfoair](https://github.com/wichers/esphome-comfoair) with two additions: setting the RS232 mode (command `0x9B`) and reading the mode the unit reports (`0x9C`).
+Die Platine nutzt einen Fork von [wichers/esphome-comfoair](https://github.com/wichers/esphome-comfoair) mit zwei Ergänzungen: RS232-Modus setzen (Kommando `0x9B`) und den vom Gerät gemeldeten Modus auswerten (`0x9C`).
 
-1. Copy [`firmware/comfoair-esp32.yaml`](firmware/comfoair-esp32.yaml) and [`firmware/secrets.yaml.example`](firmware/secrets.yaml.example) (as `secrets.yaml`) into your ESPHome folder and fill in your values.
-2. First flash via USB-C, for example with the ESPHome dashboard or `esphome run comfoair-esp32.yaml`. The board enters the bootloader automatically.
-3. After that, updates go over the air.
-4. Home Assistant discovers the device; enter the API key when asked.
+1. [`firmware/comfoair-esp32.yaml`](firmware/comfoair-esp32.yaml) und [`firmware/secrets.yaml.example`](firmware/secrets.yaml.example) (als `secrets.yaml`) in den ESPHome-Ordner kopieren und ausfüllen.
+2. Erstes Flashen über USB-C, z. B. mit dem ESPHome-Dashboard oder `esphome run comfoair-esp32.yaml`. Die Platine wechselt selbst in den Bootloader.
+3. Danach laufen Updates über WLAN.
+4. Home Assistant findet das Gerät; den API-Schlüssel eingeben, wenn danach gefragt wird.
 
-## RS232 mode and the wall panel
+## RS232-Modus und das Bedienteil
 
-The unit knows several RS232 modes. Measured on a CA350 with firmware 3.20:
+Das Gerät kennt mehrere RS232-Modi. Gemessen an einer CA350 mit Firmware 3.20:
 
-| Mode | Meaning | Result |
+| Modus | Bedeutung | Ergebnis |
 |---|---|---|
-| 1 "PC only" | | **acknowledged but ignored** |
-| 3 "PC master" | | accepted — **wall panel goes dark** |
-| 0 "end" (from 3) | back to 2 "CC-Ease only" | panel active, **Home Assistant can still read and switch** |
+| 1 „nur PC“ | | **wird quittiert, aber ignoriert** |
+| 3 „PC Master“ | | angenommen — **Bedienteil wird dunkel** |
+| 0 „Ende“ (aus 3) | zurück auf 2 „nur CC-Ease“ | Bedienteil aktiv, **Home Assistant liest und schaltet trotzdem** |
 
-The **"Wall panel"** switch in Home Assistant selects between these: off = mode 3 (panel dark), on = mode 2 (both work in parallel). After a power cut the unit starts in mode 2; the board checks the reported mode every minute and restores the setting.
+Der Schalter **„Wall panel“** in Home Assistant wählt zwischen beiden: aus = Modus 3 (Bedienteil dunkel), an = Modus 2 (beide parallel). Nach einem Stromausfall startet das Gerät in Modus 2; die Platine prüft den gemeldeten Modus jede Minute und stellt die Einstellung wieder her.
 
-## Installation
+## Einbau
 
-- The board connects to the **low-voltage RS232 port only**. Do not open the mains part of the unit.
-- Power it with any USB-C power supply (5 V, 0.5 A is plenty).
-- Keep the antenna end of the board free of metal for good WiFi.
-- Only **one master** may talk on the RS232 port: disconnect any other gateway or PC before connecting the board.
+- Die Platine hängt **nur an der Kleinspannungs-Schnittstelle RS232**. Den Netzspannungsteil des Geräts nicht öffnen.
+- Versorgung über ein beliebiges USB-C-Netzteil (5 V, 0,5 A reichen).
+- Das Antennenende der Platine frei von Metall halten, dann ist der WLAN-Empfang gut.
+- Auf der RS232-Leitung darf nur **ein Master** sprechen: anderes Gateway oder PC vorher abstecken.
 
-## Licence
+## Lizenz
 
 - Hardware (`hardware/`): [CERN-OHL-S-2.0](LICENSE-CERN-OHL-S-2.0)
-- Firmware configuration and documentation: [GPL-3.0](LICENSE-GPL-3.0), like the ESPHome component it builds on
+- Firmware-Konfiguration und Dokumentation: [GPL-3.0](LICENSE-GPL-3.0), wie die zugrunde liegende ESPHome-Komponente
 
-## Disclaimer
+## Haftungsausschluss
 
-This is an independent hobby project, not affiliated with Zehnder Group, J.E. StorkAir, Wernig or Paul. Brand and model names are used only to describe compatibility. Use at your own risk.
+Ein unabhängiges Hobbyprojekt ohne Verbindung zu Zehnder Group, J.E. StorkAir, Wernig oder Paul. Marken- und Modellnamen dienen nur zur Angabe der Kompatibilität. Nutzung auf eigene Gefahr.
 
-## Credits
+## Dank
 
-- [wichers/esphome-comfoair](https://github.com/wichers/esphome-comfoair) — the ESPHome component
-- The ComfoAir protocol description by the community and the FHEM, openHAB and hacomfoairmqtt projects
+- [wichers/esphome-comfoair](https://github.com/wichers/esphome-comfoair) — die ESPHome-Komponente
+- Die ComfoAir-Protokollbeschreibung der Community sowie die Projekte FHEM, openHAB und hacomfoairmqtt
