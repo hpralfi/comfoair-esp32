@@ -16,7 +16,7 @@ It was built to replace a Gira HomeServer + Moxa serial gateway on a Wernig G90-
 - **All values of the unit**: four temperatures, level, fan power and rpm, bypass, filter, frost protection, preheating, operating hours per level
 - **Control**: ventilation level 0–3, comfort temperature, fan level percentages, boost button on the board
 - **Wall panel switch**: keep the CC-Ease / CC-Luxe panel active in parallel, or turn it dark so Home Assistant is the only control (see [RS232 mode](#rs232-mode-and-the-wall-panel))
-- **Web interface** in the browser (with login): all values live, controls, settings, live log, firmware upload — works without Home Assistant too
+- **Custom web interface** in the browser (with login): level buttons, heat exchanger diagram with all four temperatures, fans, filter warning, settings, live log, firmware upload — works without Home Assistant, on phone and desktop
 - **Over-the-air updates** after the first flash
 - **USB-C** for power and programming (CH340K on board, auto-reset into bootloader)
 - **Second RS232 channel** on a screw terminal, reserved for a future panel proxy mode
@@ -27,6 +27,12 @@ It was built to replace a Gira HomeServer + Moxa serial gateway on a Wernig G90-
 ![Home Assistant dashboard](docs/images/home-assistant.png)
 
 Example dashboard: level buttons, wall panel switch, fans, bypass, filter, operating hours and a 24-hour temperature history.
+
+## Web interface
+
+![Web interface](docs/images/web-interface.png)
+
+At `http://<board-ip>/`, embedded in the firmware ([`firmware/webui/comfoair-ui.js`](firmware/webui/comfoair-ui.js)), no internet needed. Prefer the stock ESPHome UI? Remove the `js_url` and `js_include` lines from the configuration.
 
 ## Hardware
 
@@ -97,7 +103,7 @@ Assembled and tested boards: DB9 and screw terminal soldered, solder jumpers set
 
 The board uses a fork of [wichers/esphome-comfoair](https://github.com/wichers/esphome-comfoair) with two additions: setting the RS232 mode (command `0x9B`) and reading the mode the unit reports (`0x9C`).
 
-1. Copy [`firmware/comfoair-esp32.yaml`](firmware/comfoair-esp32.yaml) and [`firmware/secrets.yaml.example`](firmware/secrets.yaml.example) (as `secrets.yaml`) into your ESPHome folder and fill in your values.
+1. Copy [`firmware/comfoair-esp32.yaml`](firmware/comfoair-esp32.yaml), the [`firmware/webui/`](firmware/webui/) folder and [`firmware/secrets.yaml.example`](firmware/secrets.yaml.example) (as `secrets.yaml`) into your ESPHome folder and fill in your values.
 2. First flash via USB-C, for example with the ESPHome dashboard or `esphome run comfoair-esp32.yaml`. The board enters the bootloader automatically.
 3. After that, updates go over the air.
 4. Home Assistant discovers the device; enter the API key when asked.
